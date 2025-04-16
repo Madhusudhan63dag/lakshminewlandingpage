@@ -28,7 +28,12 @@ function App() {
     email: ''
   });
 
+  const [showCopyNotification, setShowCopyNotification] = useState(false);
+
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const floorPlans = [
     { image: plan1, title: "Master Plan", description: "Overall layout of Lakshmi Nilayam" },
@@ -57,12 +62,65 @@ function App() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Handle form submission logic here
-    alert('Thank you for your interest! We will contact you soon.');
-    setFormData({ name: '', phone: '', email: '' });
+    setIsSubmitting(true);
+    setSubmitError('');
+    
+    // Create form data to send
+    const formElement = e.target;
+    const formDataToSend = new FormData(formElement);
+    
+    try {
+      // Send data using FormSubmit service
+      const response = await fetch('https://formsubmit.co/lakshminilayam776@gmail.com', {
+        method: 'POST',
+        body: formDataToSend,
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        console.log('Form submission successful');
+        // Store form data in sessionStorage for the thank you page
+        sessionStorage.setItem('enquiryData', JSON.stringify(formData));
+        
+        // Redirect to thank you page on successful submission
+        window.location.href = '/thank-you.html';
+        
+        // Reset form (won't be visible due to redirect)
+        setFormData({ name: '', phone: '', email: '' });
+      } else {
+        throw new Error('Form submission failed');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setSubmitError('Failed to submit form. Please try again or contact us directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const copyEmailToClipboard = () => {
+    const email = "lakshminilayam776@gmail.com";
+    navigator.clipboard.writeText(email)
+      .then(() => {
+        setShowCopyNotification(true);
+        setTimeout(() => {
+          setShowCopyNotification(false);
+        }, 2000);
+      })
+      .catch(err => {
+        console.error('Could not copy text: ', err);
+      });
+  };
+
+  // Add scroll to enquiry form function
+  const scrollToEnquireForm = () => {
+    document.getElementById('contact').scrollIntoView({ 
+      behavior: 'smooth' 
+    });
   };
 
   return (
@@ -103,7 +161,9 @@ function App() {
               <li className="mb-3"><strong className="text-[#F08A9E]">Total Apartments:</strong> 100 spacious homes</li>
               <li className="mb-3"><strong className="text-[#F08A9E]">Apartment Sizes:</strong> Ranging from 1430 Sft to 1790 Sft</li>
             </ul>
+            <a href="https://drive.google.com/file/d/114mE3lUhqYCOoucijP97lYbPm1B0hRNQ/view" target="_blank" rel="noopener noreferrer">
             <button className="mt-4 py-3 px-6 bg-[#EC6786] text-white border-none rounded font-bold cursor-pointer transition-colors hover:bg-[#F08A9E]">Get Brochure</button>
+            </a>
           </div>
           
           {/* Image side */}
@@ -165,7 +225,12 @@ function App() {
             
             <p className="mb-8 text-gray-700">We Madhu infra's Presenting Lakshmi Nilayam, a high-rise gated community 2 & 3 Bhk apartments in Guntur that offers premium luxury living, With more than 100 luxury 2 & 3 Bhk flats, developed across 1.6 acres. Enjoy access to a state-of-the-art clubhouse for relaxation and socializing. Conveniently located with easy access to the capital of Andhra Pradesh - Amravati in just 45 minutes drive, our community offers the perfect blend of comfort and connectivity.</p>
             
-            <button className="py-3 px-6 bg-[#EC6786] text-white border-none rounded font-bold cursor-pointer transition-colors hover:bg-[#F08A9E]">Enquire Now</button>
+            <button 
+              onClick={scrollToEnquireForm} 
+              className="py-3 px-6 bg-[#EC6786] text-white border-none rounded font-bold cursor-pointer transition-colors hover:bg-[#F08A9E]"
+            >
+              Enquire Now
+            </button>
           </div>
         </div>
       </section>
@@ -352,10 +417,21 @@ function App() {
         </div>
       </section>
 
-      {/* Contact Form Section */}
+      {/* Enquire Form Section (previously Contact Form Section) */}
       <section id="contact" className="text-center bg-white py-16 px-[5%]">
-        <h2 className="text-2xl md:text-3xl font-bold text-[#EC6786] mb-8">Contact Us</h2>
-        <form className="max-w-lg mx-auto text-left" onSubmit={handleSubmit}>
+        <h2 className="text-2xl md:text-3xl font-bold text-[#EC6786] mb-8">Enquire Now</h2>
+        <form 
+          className="max-w-lg mx-auto text-left" 
+          onSubmit={handleSubmit}
+          action="https://formsubmit.co/lakshminilayam776@gmail.com" 
+          method="POST"
+        >
+          {/* FormSubmit configuration */}
+          <input type="hidden" name="_subject" value="New enquiry from Lakshmi Nilayam website" />
+          <input type="hidden" name="_template" value="table" />
+          <input type="hidden" name="_captcha" value="false" />
+          <input type="hidden" name="_next" value={window.location.origin + "/thank-you.html"} />
+          
           <div className="mb-5">
             <label htmlFor="name" className="block mb-2 font-bold">Name</label>
             <input 
@@ -395,7 +471,20 @@ function App() {
             />
           </div>
           
-          <button type="submit" className="w-full py-3 bg-[#EC6786] text-white border-none rounded text-base font-bold cursor-pointer transition-colors hover:bg-[#F08A9E]">Enquire Now</button>
+          {/* Error message display */}
+          {submitError && (
+            <div className="mb-4 p-3 bg-red-50 text-red-600 rounded border border-red-200">
+              {submitError}
+            </div>
+          )}
+          
+          <button 
+            type="submit" 
+            className="w-full py-3 bg-[#EC6786] text-white border-none rounded text-base font-bold cursor-pointer transition-colors hover:bg-[#F08A9E] disabled:opacity-70"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Submitting...' : 'Enquire Now'}
+          </button>
         </form>
       </section>
 
@@ -403,16 +492,46 @@ function App() {
       <footer className="bg-[#EC6786]/50 text-white py-16 px-[5%] pt-16 pb-5">
         <div className="flex flex-col lg:flex-row justify-between mb-10 gap-8">
           <div className="flex-1">
-          <img src={logo} alt="Lakshmi Nilayam Logo" className="h-10" />
-
-            <p>Premium Living, Peacefully Designed</p>
+            <img src={logo} alt="Lakshmi Nilayam Logo" className="h-10" />
+            <p className="mt-3 mb-2">Premium Living, Peacefully Designed</p>
+            <p className="italic text-white/90 mt-4">
+              "Where dreams come to life, and every day feels like a celebration."
+            </p>
           </div>
+          
           <div className="flex-1">
             <h4 className="text-lg font-medium mb-4">Contact Information</h4>
-            <p className="mb-2">Email: info@lakshminilaym.com</p>
-            <p className="mb-2">Phone: +91 1234567890</p>
-            <p className="mb-2">Address: Guntur, Andhra Pradesh</p>
+            <div className="mb-4">
+              <p className="font-medium mb-1">Location:</p>
+              <p className="mb-1">Your Dream home Awaits at</p>
+              <p className="font-bold mb-1">Lakshmi Nilayam</p>
+              <p className="mb-2">D.No 272 & 273, Logos Public School Lane,</p>
+              <p className="mb-2">Syamalanagar Extension, Guntur – 522006</p>
+            </div>
+            <div className="mb-4">
+              <p className="font-medium mb-1">Call Now:</p>
+              <p className="mb-1">
+                <a href="tel:+919440996805" className="text-white hover:text-gray-200 transition-colors">
+                  Phone: +91 94409 96805
+                </a>
+              </p>
+            </div>
+            <div className="relative mb-1">
+              <p className="font-medium mb-1">Email:</p>
+              <button 
+                onClick={copyEmailToClipboard} 
+                className="text-white hover:text-gray-200 transition-colors cursor-pointer bg-transparent border-none p-0 font-normal text-left"
+              >
+                info@lakshminilaym.com
+              </button>
+              {showCopyNotification && (
+                <div className="absolute -right-20 -top-1 bg-white text-[#EC6786] text-xs py-1 px-2 rounded shadow-md">
+                  Copied!
+                </div>
+              )}
+            </div>
           </div>
+          
           <div className="flex-1">
             <h4 className="text-lg font-medium mb-4">Quick Links</h4>
             <ul className="list-none">
@@ -424,10 +543,30 @@ function App() {
             </ul>
           </div>
         </div>
+        
         <div className="text-center pt-5 border-t border-white border-opacity-20">
           <p>&copy; 2023 Lakshmi Nilayam. All Rights Reserved.</p>
         </div>
       </footer>
+
+      {/* WhatsApp Floating Button */}
+      <a 
+        href="https://wa.me/919440996805?text=I'm%20interested%20in%20Lakshmi%20Nilayam%20apartments" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-50 animate-bounce"
+      >
+        <div className="bg-[#25D366] p-3 rounded-full shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 448 512" 
+            className="w-8 h-8 text-white"
+            fill="currentColor"
+          >
+            <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
+          </svg>
+        </div>
+      </a>
     </div>
   );
 }
