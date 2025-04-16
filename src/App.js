@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import Thankyou from './Thankyou';
 import banner from './assets/banner.jpg';
 import banner_mob from './assets/banner_mob.jpg';
 import logo from './assets/logo.png';
@@ -19,9 +21,8 @@ import am4 from './assets/am4.jpg'
 import am5 from './assets/am5.jpg'
 import am6 from './assets/am6.jpg'
 
-
-
-function App() {
+function HomePage() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -36,32 +37,26 @@ function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   
-  // New state for popup form visibility
   const [showBrochureForm, setShowBrochureForm] = useState(false);
 
-  // Add a ref for the video element
   const videoRef = useRef(null);
 
-  // Set up intersection observer for video
   useEffect(() => {
     const options = {
-      root: null, // use the viewport
+      root: null,
       rootMargin: '0px',
-      threshold: 0.5 // trigger when at least 50% of the video is visible
+      threshold: 0.5
     };
 
     const handleIntersect = (entries, observer) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          // Video is in view - play it
           if (videoRef.current && videoRef.current.paused) {
             videoRef.current.play().catch(error => {
-              // Auto-play might be blocked by browser settings
               console.log("Video play failed:", error);
             });
           }
         } else {
-          // Video is out of view - pause it
           if (videoRef.current && !videoRef.current.paused) {
             videoRef.current.pause();
           }
@@ -114,12 +109,10 @@ function App() {
     setIsSubmitting(true);
     setSubmitError('');
     
-    // Create form data to send
     const formElement = e.target;
     const formDataToSend = new FormData(formElement);
     
     try {
-      // Send data using FormSubmit service
       const response = await fetch('https://formsubmit.co/lakshminilayam776@gmail.com', {
         method: 'POST',
         body: formDataToSend,
@@ -130,13 +123,8 @@ function App() {
       
       if (response.ok) {
         console.log('Form submission successful');
-        // Store form data in sessionStorage for the thank you page
         sessionStorage.setItem('enquiryData', JSON.stringify(formData));
-        
-        // Redirect to thank you page on successful submission
-        window.location.href = '/thank-you.html';
-        
-        // Reset form (won't be visible due to redirect)
+        navigate('/thank-you');
         setFormData({ name: '', phone: '', email: '', flatType: '2BHK' });
       } else {
         throw new Error('Form submission failed');
@@ -149,24 +137,20 @@ function App() {
     }
   };
 
-  // Add function to open brochure
   const openBrochure = () => {
     window.open("https://drive.google.com/file/d/114mE3lUhqYCOoucijP97lYbPm1B0hRNQ/view", "_blank");
   };
 
-  // Modify the form submission to handle brochure request
   const handleBrochureFormSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitError('');
     
-    // Create form data to send
     const formElement = e.target;
     const formDataToSend = new FormData(formElement);
     formDataToSend.append("formType", "brochureRequest");
     
     try {
-      // Send data using FormSubmit service
       const response = await fetch('https://formsubmit.co/lakshminilayam776@gmail.com', {
         method: 'POST',
         body: formDataToSend,
@@ -177,11 +161,8 @@ function App() {
       
       if (response.ok) {
         console.log('Brochure form submission successful');
-        // Close the popup
         setShowBrochureForm(false);
-        // Reset form
         setFormData({ name: '', phone: '', email: '', flatType: '2BHK' });
-        // Open the brochure
         openBrochure();
       } else {
         throw new Error('Form submission failed');
@@ -208,7 +189,6 @@ function App() {
       });
   };
 
-  // Add scroll to enquiry form function
   const scrollToEnquireForm = () => {
     document.getElementById('contact').scrollIntoView({ 
       behavior: 'smooth' 
@@ -217,7 +197,6 @@ function App() {
 
   return (
     <div className="w-full overflow-x-hidden">
-      {/* Header Section */}
       <header className="flex justify-between items-center py-5 px-[5%] bg-white shadow-md sticky top-0 z-50">
         <div className="logo-container">
           <img src={logo} alt="Lakshmi Nilayam Logo" className="h-10" />
@@ -234,44 +213,37 @@ function App() {
         </nav>
       </header>
 
-      {/* Hero Banner Section */}
       <section id="home" className="">
         <div className="w-full">
           <img src={window.innerWidth < 768 ? banner_mob : banner} alt="Lakshmi Nilayam Apartments" className="w-screen shadow-md object-cover" />
         </div>
         
-        {/* content section - side by side */}
         <div className="flex flex-col md:flex-row items-center justify-between px-[5%] py-16 gap-8">
-          {/* Content side */}
-                <div className="md:w-1/2 w-full">
-                <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-[#00BFFF] to-[#1E90FF]  text-transparent bg-clip-text">Lakshmi Nilayam – Premium Living, Peacefully Designed</h1>
-                <p className="mb-6 text-gray-700">Step into a world of comfort and convenience at Lakshmi Nilayam. These thoughtfully crafted 2 & 3 BHK Gated Community apartments in Guntur offer a serene, gated community lifestyle where modern design meets peaceful surroundings.</p>
-                <ul className="list-none my-5 text-left">
-                  <li className="mb-3"><strong className="text-[#F08A9E]">Total Land Area:</strong> 1.6 Acres of scenic landscapes and open spaces</li>
-                  <li className="mb-3"><strong className="text-[#F08A9E]">Towers:</strong> 2 stunning high-rise towers offering panoramic views</li>
-                  <li className="mb-3"><strong className="text-[#F08A9E]">Floors:</strong> Ground + 5 levels with a modern architectural design</li>
-                  <li className="mb-3"><strong className="text-[#F08A9E]">Total Apartments:</strong> 100 spacious homes</li>
-                  <li className="mb-3"><strong className="text-[#F08A9E]">Apartment Sizes:</strong> Ranging from 1430 Sft to 1790 Sft</li>
-                </ul>
-                {/* Modified Get Brochure button */}
-                <div className="flex flex-col items-center">
-                  <button 
-                    onClick={() => setShowBrochureForm(true)} 
-                    className="mt-4 py-3 px-6 bg-[#EC6786] text-white border-none rounded font-bold cursor-pointer transition-colors hover:bg-[#F08A9E]"
-                    >
-                    Get Brochure
-                  </button>
-                </div> 
-                </div>
-                
-                {/* Image side */}
+          <div className="md:w-1/2 w-full">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-[#00BFFF] to-[#1E90FF]  text-transparent bg-clip-text">Lakshmi Nilayam – Premium Living, Peacefully Designed</h1>
+            <p className="mb-6 text-gray-700">Step into a world of comfort and convenience at Lakshmi Nilayam. These thoughtfully crafted 2 & 3 BHK Gated Community apartments in Guntur offer a serene, gated community lifestyle where modern design meets peaceful surroundings.</p>
+            <ul className="list-none my-5 text-left">
+              <li className="mb-3"><strong className="text-[#F08A9E]">Total Land Area:</strong> 1.6 Acres of scenic landscapes and open spaces</li>
+              <li className="mb-3"><strong className="text-[#F08A9E]">Towers:</strong> 2 stunning high-rise towers offering panoramic views</li>
+              <li className="mb-3"><strong className="text-[#F08A9E]">Floors:</strong> Ground + 5 levels with a modern architectural design</li>
+              <li className="mb-3"><strong className="text-[#F08A9E]">Total Apartments:</strong> 100 spacious homes</li>
+              <li className="mb-3"><strong className="text-[#F08A9E]">Apartment Sizes:</strong> Ranging from 1430 Sft to 1790 Sft</li>
+            </ul>
+            <div className="flex flex-col items-center">
+              <button 
+                onClick={() => setShowBrochureForm(true)} 
+                className="mt-4 py-3 px-6 bg-[#EC6786] text-white border-none rounded font-bold cursor-pointer transition-colors hover:bg-[#F08A9E]"
+              >
+                Get Brochure
+              </button>
+            </div> 
+          </div>
           <div className="md:w-1/2 md:block hidden">
             <img src={sidebanner} alt="Lakshmi Nilayam Interior" className="w-full rounded-lg shadow-md" />
           </div>
         </div>
       </section>
 
-      {/* Video Section */}
       <section className="text-center bg-white">
         <div className="">
           <video 
@@ -287,7 +259,6 @@ function App() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section id="features" className="flex justify-between gap-5 text-center py-16 px-[5%] flex-wrap md:flex-nowrap">
         <div className="flex-1 p-5 bg-white rounded-lg shadow-md min-w-[100%] md:min-w-0 mb-5 md:mb-0">
           <h3 className="text-xl font-bold mb-3 text-[#EC6786]">Premium Location</h3>
@@ -310,15 +281,12 @@ function App() {
         </div>
       </section>
 
-      {/* Location Section */}
       <section id="location" className="bg-white py-16 px-[5%]">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-          {/* Image side - appears first on mobile, second on desktop */}
           <div className="md:w-1/2 md:order-2">
             <img src={heart} alt="Lakshmi Nilayam Location" className="w-full h-[100vh] rounded-lg shadow-md" />
           </div>
           
-          {/* Content side */}
           <div className="md:w-1/2 md:order-1 text-left">
             <h2 className="text-2xl md:text-3xl font-bold text-[#EC6786] mb-2">At the Heart of Guntur</h2>
             <h3 className="text-xl font-medium text-gray-700 mb-8">In the midst of Serenity, Close to Pulse of Amravati</h3>
@@ -337,14 +305,11 @@ function App() {
         </div>
       </section>
 
-      {/* Floor Plans Section */}
       <section id="floor-plans" className="text-center bg-white py-16 ">
         <h2 className="text-2xl md:text-3xl font-bold text-[#EC6786] mb-8">Master Plan and Floor Plan</h2>
         
         <div className="">
-          {/* Slider container */}
           <div className="relative">
-            {/* Main image container */}
             <div className="overflow-hidden rounded-lg">
               <div className="relative h-[70vh] max-h-[700px]">
                 {floorPlans.map((plan, index) => (
@@ -366,7 +331,6 @@ function App() {
               </div>
             </div>
             
-            {/* Navigation arrows */}
             <button 
               className="absolute left-2 top-1/2 -translate-y-1/2 bg-[#EC6786] bg-opacity-70 text-white p-2 rounded-full hover:bg-opacity-100 transition-all"
               onClick={prevSlide}
@@ -385,7 +349,6 @@ function App() {
             </button>
           </div>
 
-          {/* Thumbnail navigation */}
           <div className="flex gap-3 justify-center mb-4">
             {floorPlans.map((plan, index) => (
               <button 
@@ -401,11 +364,9 @@ function App() {
         </div>
       </section>
 
-      {/* Amenities Section */}
       <section id="amenities" className="text-center py-16 px-[5%]">
         <h2 className="text-2xl md:text-3xl font-bold text-[#EC6786] mb-8">World Class Amenities</h2>
         <div className="max-w-6xl mx-auto">
-          {/* Grid layout for amenities */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
               <img src={am6} alt="Swimming Pool" className="w-full h-48 object-cover" />
@@ -450,7 +411,6 @@ function App() {
         </div>
       </section>
 
-      {/* Enquire Form Section */}
       <section id="contact" className="py-20 px-[5%] bg-gradient-to-br from-pink-50 to-white">
         <div className="max-w-6xl mx-auto text-center mb-10">
           <h2 className="text-3xl font-bold text-[#EC6786] mb-3">Get In Touch</h2>
@@ -469,11 +429,10 @@ function App() {
             action="https://formsubmit.co/lakshminilayam776@gmail.com" 
             method="POST"
           >
-            {/* FormSubmit configuration */}
             <input type="hidden" name="_subject" value="New enquiry from Lakshmi Nilayam website" />
             <input type="hidden" name="_template" value="table" />
             <input type="hidden" name="_captcha" value="false" />
-            <input type="hidden" name="_next" value={window.location.origin + "/thank-you.html"} />
+            <input type="hidden" name="_next" value={window.location.origin + "/thank-you"} />
             
             <div className="mb-6">
               <label htmlFor="name" className="block mb-2 font-semibold text-gray-700">Your Name</label>
@@ -539,7 +498,6 @@ function App() {
               </div>
             </div>
             
-            {/* Error message display */}
             {submitError && (
               <div className="mb-6 p-3 bg-red-50 text-red-600 rounded-lg border border-red-200 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -568,7 +526,6 @@ function App() {
         </div>
       </section>
 
-      {/* Brochure Request Popup */}
       {showBrochureForm && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md relative animate-fadeIn">
@@ -585,7 +542,6 @@ function App() {
             <p className="text-gray-600 mb-4">Please fill the form below to get access to our detailed brochure.</p>
             
             <form onSubmit={handleBrochureFormSubmit} action="https://formsubmit.co/lakshminilayam776@gmail.com" method="POST">
-              {/* FormSubmit configuration */}
               <input type="hidden" name="_subject" value="Brochure request from Lakshmi Nilayam website" />
               <input type="hidden" name="_template" value="table" />
               <input type="hidden" name="_captcha" value="false" />
@@ -623,7 +579,6 @@ function App() {
                 />
               </div>
               
-              {/* Error message display */}
               {submitError && (
                 <div className="mb-4 p-2 bg-red-50 text-red-600 rounded text-sm">
                   {submitError}
@@ -642,83 +597,77 @@ function App() {
         </div>
       )}
 
-      {/* Footer Section */}
-        <footer className="bg-gray-900 text-white py-16 px-[5%] pt-16 pb-5">
-          <div className="flex flex-col md:flex-row justify-between mb-10 gap-8">
-            {/* About Column */}
-            <div className="flex-1">
-          <img src={logo} alt="Lakshmi Nilayam Logo" className="h-12 mb-4" />
-          <p className="mb-4">Premium Living, Peacefully Designed</p>
-          <p className="text-sm text-gray-300 mb-6">
-            Experience the pinnacle of comfortable living with our thoughtfully designed 
-            2 & 3 BHK apartments in Guntur, offering a perfect blend of luxury and peace.
-          </p>
-            </div>
-            
-            {/* Contact Info Column */}
-            <div className="flex-1">
-          <h4 className="text-lg font-semibold mb-4 text-[#EC6786]">Contact Information</h4>
-          <div className="mb-4">
-            <p className="font-medium mb-1">Location:</p>
-            <p className="text-gray-300 mb-2">D.No 272 & 273, Logos Public School Lane,</p>
-            <p className="text-gray-300 mb-2">Syamalanagar Extension, Guntur – 522006</p>
-          </div>
-          <div className="mb-4">
-            <p className="font-medium mb-1">Call Now:</p>
-            <p className="mb-1">
-              <a href="tel:+919440996805" className="text-gray-300 hover:text-[#EC6786] transition-colors">
-            +91 94409 96805
-              </a>
+      <footer className="bg-gray-900 text-white py-16 px-[5%] pt-16 pb-5">
+        <div className="flex flex-col md:flex-row justify-between mb-10 gap-8">
+          <div className="flex-1">
+            <img src={logo} alt="Lakshmi Nilayam Logo" className="h-12 mb-4" />
+            <p className="mb-4">Premium Living, Peacefully Designed</p>
+            <p className="text-sm text-gray-300 mb-6">
+              Experience the pinnacle of comfortable living with our thoughtfully designed 
+              2 & 3 BHK apartments in Guntur, offering a perfect blend of luxury and peace.
             </p>
           </div>
-          <div className="relative mb-4">
-            <p className="font-medium mb-1">Email:</p>
-            <button 
-              onClick={copyEmailToClipboard} 
-              className="text-gray-300 hover:text-[#EC6786] transition-colors cursor-pointer bg-transparent border-none p-0 font-normal text-left"
-            >
-              lakshminilayam776@gmail.com
-            </button>
-            {showCopyNotification && (
-              <div className="absolute -right-20 -top-1 bg-gray-800 text-[#EC6786] text-xs py-1 px-2 rounded shadow-md">
-            Copied!
-              </div>
-            )}
-          </div>
+          
+          <div className="flex-1">
+            <h4 className="text-lg font-semibold mb-4 text-[#EC6786]">Contact Information</h4>
+            <div className="mb-4">
+              <p className="font-medium mb-1">Location:</p>
+              <p className="text-gray-300 mb-2">D.No 272 & 273, Logos Public School Lane,</p>
+              <p className="text-gray-300 mb-2">Syamalanagar Extension, Guntur – 522006</p>
+            </div>
+            <div className="mb-4">
+              <p className="font-medium mb-1">Call Now:</p>
+              <p className="mb-1">
+                <a href="tel:+919440996805" className="text-gray-300 hover:text-[#EC6786] transition-colors">
+                  +91 94409 96805
+                </a>
+              </p>
+            </div>
+            <div className="relative mb-4">
+              <p className="font-medium mb-1">Email:</p>
+              <button 
+                onClick={copyEmailToClipboard} 
+                className="text-gray-300 hover:text-[#EC6786] transition-colors cursor-pointer bg-transparent border-none p-0 font-normal text-left"
+              >
+                lakshminilayam776@gmail.com
+              </button>
+              {showCopyNotification && (
+                <div className="absolute -right-20 -top-1 bg-gray-800 text-[#EC6786] text-xs py-1 px-2 rounded shadow-md">
+                  Copied!
+                </div>
+              )}
             </div>
           </div>
-          
-          {/* Social Media Links */}
-          <div className="flex justify-center space-x-4 mb-6">
-            <a href="https://www.facebook.com/people/Lakshmi-Nilayam/61573385609772/" className="p-2 bg-[#EC6786] text-white rounded-full hover:bg-[#F08A9E] transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" />
-          </svg>
-            </a>
-            <a href="https://www.instagram.com/lakshmi_nilayam/" className="p-2 bg-[#EC6786] text-white rounded-full hover:bg-[#F08A9E] transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-          </svg>
-            </a>
-            <a href="https://x.com/Lakshmi11963341" className="p-2 bg-[#EC6786] text-white rounded-full hover:bg-[#F08A9E] transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
-          </svg>
-            </a>
-            <a href="https://www.youtube.com/@Lakshmi-Nilayam" className="p-2 bg-[#EC6786] text-white rounded-full hover:bg-[#F08A9E] transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
-          </svg>
-            </a>
-          </div>
-          
-          {/* Copyright Section */}
-          <div className="text-center pt-5 border-t border-gray-700">
-            <p className="text-gray-400">&copy; {new Date().getFullYear()} Lakshmi Nilayam. All Rights Reserved.</p>
-          </div>
-        </footer>
+        </div>
+        
+        <div className="flex justify-center space-x-4 mb-6">
+          <a href="https://www.facebook.com/people/Lakshmi-Nilayam/61573385609772/" className="p-2 bg-[#EC6786] text-white rounded-full hover:bg-[#F08A9E] transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" />
+            </svg>
+          </a>
+          <a href="https://www.instagram.com/lakshmi_nilayam/" className="p-2 bg-[#EC6786] text-white rounded-full hover:bg-[#F08A9E] transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+            </svg>
+          </a>
+          <a href="https://x.com/Lakshmi11963341" className="p-2 bg-[#EC6786] text-white rounded-full hover:bg-[#F08A9E] transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+            </svg>
+          </a>
+          <a href="https://www.youtube.com/@Lakshmi-Nilayam" className="p-2 bg-[#EC6786] text-white rounded-full hover:bg-[#F08A9E] transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+            </svg>
+          </a>
+        </div>
+        
+        <div className="text-center pt-5 border-t border-gray-700">
+          <p className="text-gray-400">&copy; {new Date().getFullYear()} Lakshmi Nilayam. All Rights Reserved.</p>
+        </div>
+      </footer>
 
-        {/* WhatsApp Floating Button */}
       <a href="https://wa.me/919440996805?text=I'm%20interested%20in%20Lakshmi%20Nilayam%20apartments"  target="_blank"  rel="noopener noreferrer" className="fixed bottom-6 right-6 z-50 animate-bounce">
         <div className="bg-[#25D366] p-3 rounded-full shadow-lg hover:shadow-xl transition-shadow duration-300">
           <svg 
@@ -732,6 +681,15 @@ function App() {
         </div>
       </a>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/thank-you" element={<Thankyou />} />
+    </Routes>
   );
 }
 
