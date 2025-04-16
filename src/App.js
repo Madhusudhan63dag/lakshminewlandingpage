@@ -254,12 +254,14 @@ function App() {
                   <li className="mb-3"><strong className="text-[#F08A9E]">Apartment Sizes:</strong> Ranging from 1430 Sft to 1790 Sft</li>
                 </ul>
                 {/* Modified Get Brochure button */}
-                <button 
-                  onClick={() => setShowBrochureForm(true)} 
-                  className="mt-4 py-3 px-6 bg-[#EC6786] text-white border-none rounded font-bold cursor-pointer transition-colors hover:bg-[#F08A9E]"
-                >
-                  Get Brochure
-                </button>
+                <div className="flex flex-col items-center">
+                  <button 
+                    onClick={() => setShowBrochureForm(true)} 
+                    className="mt-4 py-3 px-6 bg-[#EC6786] text-white border-none rounded font-bold cursor-pointer transition-colors hover:bg-[#F08A9E]"
+                    >
+                    Get Brochure
+                  </button>
+                </div> 
                 </div>
                 
                 {/* Image side */}
